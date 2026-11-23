@@ -27,6 +27,12 @@ function Ask($q) {
     $a = Read-Host "  $q (y/n)"
     return ($a -match '^(y|Y|h|H)')
 }
+function Ollama-Models {
+    # Installed models, or $null when Ollama does not answer. Asks the local server with a time limit: the `ollama`
+    # command itself can wait forever when its background app is stuck or still starting.
+    try { return ((Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5).models | ForEach-Object { $_.name }) -join "`n" }
+    catch { return $null }
+}
 function Refresh-Path {
     $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User')
 }
@@ -188,12 +194,21 @@ try {
             $wantModel = $true
         } else { Say "Ollama nahi liya: app chalega, bas titles/hooks simple rahenge (baad mein bhi laga sakte ho)." }
     } else {
-        $have = (& ollama list 2>$null) -join "`n"
-        if ($have -match 'llama3\.2:3b') { Ok "Ollama aur AI model pehle se hai." }
+        Say "Ollama mil gaya, check kar raha hoon (5 second tak)..."
+        $have = Ollama-Models
+        if ($null -eq $have) { Warn "Ollama jawab nahi de raha, abhi chhod raha hoon. Baad mein Ollama kholo aur chalao: ollama pull llama3.2:3b" }
+        elseif ($have -match 'llama3\.2:3b') { Ok "Ollama aur AI model pehle se hai." }
         elseif (Ask "Ollama mil gaya. AI model llama3.2:3b (~2 GB) utaarun?") { $wantModel = $true }
     }
     if ($wantModel -and $hasOllama) {
-        try { & ollama pull llama3.2:3b; Ok "AI model ready." } catch { Warn "Model nahi utra. Baad mein chalao: ollama pull llama3.2:3b" }
+        # a fresh Ollama starts its background app by itself: wait up to ~1 minute for it, never forever
+        $ready = $false
+        for ($i = 0; $i -lt 6; $i++) { if ($null -ne (Ollama-Models)) { $ready = $true; break }; Start-Sleep 5 }
+        if (-not $ready) { Warn "Ollama chal nahi raha. Baad mein Ollama kholo aur chalao: ollama pull llama3.2:3b" }
+        else {
+            & ollama pull llama3.2:3b
+            if ($LASTEXITCODE -eq 0) { Ok "AI model ready." } else { Warn "Model nahi utra. Baad mein chalao: ollama pull llama3.2:3b" }
+        }
     }
 
     # ---- start script + desktop shortcut
