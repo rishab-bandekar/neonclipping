@@ -5,7 +5,7 @@
 # Plain text on purpose: you can read every line before you run it.
 param(
     [string]$InstallDir = (Join-Path $env:LOCALAPPDATA 'NeonClipping'),
-    [string]$ZipUrl = 'https://github.com/iamajmeena/neonclipping/archive/refs/heads/main.zip',
+    [string]$ZipUrl = 'https://github.com/rishab-bandekar/neonclipping/archive/refs/heads/main.zip',
     [string]$SourceDir = '',          # developers: copy the app from a local folder instead of downloading
     [switch]$NoStart,                 # install only, do not start the app
     [switch]$Yes,                     # answer "yes" to the optional questions (GPU libraries, Ollama)
@@ -145,7 +145,7 @@ try {
     }
     if (-not (Test-Path (Join-Path $app 'app.py'))) { throw "App files nahi mile (app.py missing). Internet check karo." }
     try {
-        $sha = (Invoke-WebRequest -UseBasicParsing -Uri 'https://api.github.com/repos/iamajmeena/neonclipping/commits/main' -Headers @{ Accept = 'application/vnd.github.sha'; 'User-Agent' = 'NeonClipping-installer' } -TimeoutSec 10).Content
+        $sha = (Invoke-WebRequest -UseBasicParsing -Uri 'https://api.github.com/repos/rishab-bandekar/neonclipping/commits/main' -Headers @{ Accept = 'application/vnd.github.sha'; 'User-Agent' = 'NeonClipping-installer' } -TimeoutSec 10).Content
         if ($sha -is [byte[]]) { $sha = [Text.Encoding]::ASCII.GetString($sha) }
         $sha = ([string]$sha).Trim()
         if ($sha.Length -eq 40) { Set-Content -Path (Join-Path $app '.neon_version') -Value $sha -Encoding ASCII -NoNewline }
@@ -207,11 +207,11 @@ try {
         $pathLine,
         'powershell -NoProfile -Command "try{Invoke-WebRequest -UseBasicParsing http://127.0.0.1:%NEONCLIPPING_PORT%/healthz -TimeoutSec 2 | Out-Null; exit 0}catch{exit 1}"',
         'if %errorlevel%==0 (',
-        '  start "" http://127.0.0.1:%NEONCLIPPING_PORT%',
+        '  start "" http://127.0.0.1:%NEONCLIPPING_PORT%/open',
         '  exit /b 0',
         ')',
         "cd /d `"$app`"",
-        'start "" /min powershell -NoProfile -WindowStyle Hidden -Command "for($i=0;$i -lt 90;$i++){try{Invoke-WebRequest -UseBasicParsing http://127.0.0.1:$env:NEONCLIPPING_PORT/healthz -TimeoutSec 2 | Out-Null; Start-Process http://127.0.0.1:$env:NEONCLIPPING_PORT; break}catch{Start-Sleep 1}}"',
+        'start "" /min powershell -NoProfile -WindowStyle Hidden -Command "for($i=0;$i -lt 90;$i++){try{Invoke-WebRequest -UseBasicParsing http://127.0.0.1:$env:NEONCLIPPING_PORT/healthz -TimeoutSec 2 | Out-Null; Start-Process http://127.0.0.1:$env:NEONCLIPPING_PORT/open; break}catch{Start-Sleep 1}}"',
         "`"$venvPy`" app.py"
     )
     Set-Content -Path $startBat -Value $bat -Encoding ASCII
@@ -247,6 +247,6 @@ try {
     Write-Host "  SETUP FAIL HUA" -ForegroundColor Red
     Write-Host "  Wajah: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host "  Log file: $log"
-    Write-Host "  Madad: ye log aur error kisi AI agent (Claude/ChatGPT) ko dikhao, ya GitHub pe issue kholo: github.com/iamajmeena/neonclipping"
+    Write-Host "  Madad: ye log aur error kisi AI agent (Claude/ChatGPT) ko dikhao, ya GitHub pe issue kholo: github.com/rishab-bandekar/neonclipping"
     exit 1
 }

@@ -12,7 +12,7 @@ Everything here is user-triggered from the page; nothing is sent to GitHub excep
 from pathlib import Path
 import io, os, shutil, subprocess, sys, threading, time, urllib.request, zipfile
 
-REPO = 'iamajmeena/neonclipping'
+REPO = 'rishab-bandekar/neonclipping'
 API = f'https://api.github.com/repos/{REPO}/commits/main'
 ZIP = f'https://codeload.github.com/{REPO}/zip/refs/heads/main'
 KEEP = {'data', 'models', '.venv', 'venv', 'cache', '__pycache__', '.git', '.update-backup', '.neon_version', 'server.log',

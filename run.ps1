@@ -11,5 +11,5 @@ if (-not $env:NEONCLIPPING_PORT) {
     if ($busy) { $port = 8771 }
     $env:NEONCLIPPING_PORT = "$port"
 }
-Start-Process "http://127.0.0.1:$env:NEONCLIPPING_PORT"
+Start-Process "http://127.0.0.1:$env:NEONCLIPPING_PORT/open"   # /open: the NeonClipping website, paired (or this app when none is set)
 .venv/Scripts/python.exe app.py

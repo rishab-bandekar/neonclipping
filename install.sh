@@ -5,7 +5,7 @@
 # Everything goes into ~/NeonClipping. Delete that folder to uninstall.
 set -e
 DIR="${NEONCLIPPING_DIR:-$HOME/NeonClipping}"
-ZIP="${NEONCLIPPING_ZIP:-https://github.com/iamajmeena/neonclipping/archive/refs/heads/main.zip}"
+ZIP="${NEONCLIPPING_ZIP:-https://github.com/rishab-bandekar/neonclipping/archive/refs/heads/main.zip}"
 say() { printf '\n==> %s\n' "$1"; }
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing: $1. $2"; MISSING=1; }; }
 
@@ -51,7 +51,7 @@ cat > "$DIR/start.sh" <<EOF
 #!/usr/bin/env bash
 cd "$DIR/app"
 PORT="\${NEONCLIPPING_PORT:-8770}"
-(sleep 4; (command -v open >/dev/null && open "http://127.0.0.1:\$PORT") || (command -v xdg-open >/dev/null && xdg-open "http://127.0.0.1:\$PORT") || true) &
+(sleep 4; (command -v open >/dev/null && open "http://127.0.0.1:\$PORT/open") || (command -v xdg-open >/dev/null && xdg-open "http://127.0.0.1:\$PORT/open") || true) &
 exec .venv/bin/python app.py
 EOF
 chmod +x "$DIR/start.sh"

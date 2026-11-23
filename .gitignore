@@ -62,3 +62,6 @@ __pycache__/
 !composer.css
 !sidebar.js
 !library.js
+# hosted website: sources only (tools/build_web.py writes dist/web, which stays ignored)
+!web/
+!web/*

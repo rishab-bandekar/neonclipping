@@ -802,6 +802,7 @@ jobs.attach(app,DATA,state,{'make':make,'export':export,'transcribe':caption_job
 styling.attach(app,DATA)
 import phone
 phone.attach(app,DATA,ROOT)
+import remote;remote.attach(app,DATA)      # hosted web UI: origin/host checks + pairing token; added after phone so it runs first (see remote.py)
 import subtitles,facecam_detect,aiparts
 subtitles.attach(app)
 aiparts.attach(app)
