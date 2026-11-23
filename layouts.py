@@ -80,7 +80,7 @@ def render_graph(name, rects, top=.32, width=1080, height=1920, cam_fx=''):
     spec = geometry(name, top, width, height)
     if spec['mode'] == 'blur':
         bw,bh=max(2,width//8*2),max(2,height//8*2)
-        return f'[0:v]split=2[b][f];[b]scale={bw}:{bh}:force_original_aspect_ratio=increase,crop={bw}:{bh},boxblur=8:2,scale={width}:{height}[bg];[f]scale={width}:{height}:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1[base]'
+        return f'[0:v]format=yuv420p,split=2[b][f];[b]scale={bw}:{bh}:force_original_aspect_ratio=increase,crop={bw}:{bh},boxblur=8:2,scale={width}:{height}[bg];[f]scale={width}:{height}:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1[base]'
     layers = spec['layers']; parts=[]
     if len(layers)>1: parts.append('[0:v]split='+str(len(layers))+''.join(f'[s{i}]' for i in range(len(layers))))
     for i, layer in enumerate(layers):
