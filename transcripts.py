@@ -90,7 +90,7 @@ def attach(app,data,state,probe,transcribe):
                         if allowed(url) and ('youtu.be' in url or 'youtube.com' in url):
                             state[job].update(message='Reading the source YouTube captions before trying local recognition…')
                             with ytdl.YDL({'quiet':True,'no_warnings':True,'skip_download':True,'noplaylist':True,'socket_timeout':15,'retries':1}) as downloader:info=downloader.extract_info(url,download=False)
-                            words=from_info(info)
+                            words=from_info(info,language)
                             if words and language=='hinglish':
                                 from captions import ascii_fold
                                 from translit import to_hinglish

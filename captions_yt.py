@@ -2,20 +2,36 @@
 Same idea PeakCut uses for YouTube links. Returns [{'start','end','text'}] in absolute seconds, or None."""
 import json, re, urllib.request
 
-def from_info(info):
+def pick_track(info, want=None):
+    """The json3 caption track to read, or None.
+
+    want is the caption language the user picked (None or '' = Auto; 'hinglish' reads the Hindi track). Auto keeps the
+    track in the video's declared language. An explicit language only accepts a track spoken in that language (YouTube's
+    speech track or a human-written one), never a track in another language or YouTube's machine translation, so the
+    local speech model transcribes in the chosen language instead. This matters when the declared language is wrong:
+    an English stream marked Hindi only has a Hindi speech track, which writes the English words in Devanagari."""
     auto = info.get('automatic_captions') or {}; manual = info.get('subtitles') or {}
     lang = info.get('language') or ''
-    origs = [k for k in auto if k.endswith('-orig')]
-    key = None
-    if lang and f'{lang}-orig' in auto: key = f'{lang}-orig'
-    elif lang and lang in auto: key = lang
-    elif len(origs) == 1: key = origs[0]
-    elif 'en-orig' in auto: key = 'en-orig'          # several tracks and no declared language: English is the safest guess
-    elif origs: key = origs[0]
-    group = auto
-    if not key:                                           # a human-written track in the spoken language
-        key = lang if lang in manual else None; group = manual
-    track = next((f for f in group.get(key) or [] if f.get('ext') == 'json3' and f.get('url')), None) if key else None
+    want = 'hi' if want == 'hinglish' else (want or '')
+    key = None; group = auto
+    if want:
+        if f'{want}-orig' in auto: key = f'{want}-orig'
+        elif want == lang and want in auto: key = want
+        elif want in manual: key = want; group = manual
+    else:
+        origs = [k for k in auto if k.endswith('-orig')]
+        if lang and f'{lang}-orig' in auto: key = f'{lang}-orig'
+        elif lang and lang in auto: key = lang
+        elif len(origs) == 1: key = origs[0]
+        elif 'en-orig' in auto: key = 'en-orig'          # several tracks and no declared language: English is the safest guess
+        elif origs: key = origs[0]
+        if not key:                                           # a human-written track in the spoken language
+            key = lang if lang in manual else None; group = manual
+    return next((f for f in group.get(key) or [] if f.get('ext') == 'json3' and f.get('url')), None) if key else None
+
+
+def from_info(info, want=None):
+    track = pick_track(info, want)
     if not track: return None
     req = urllib.request.Request(track['url'], headers={'User-Agent': 'Mozilla/5.0'})
     data = json.loads(urllib.request.urlopen(req, timeout=30).read(40_000_000))

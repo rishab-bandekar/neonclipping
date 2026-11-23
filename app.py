@@ -300,7 +300,7 @@ def start_make(b, previous=None):
     title=info.get('title') or ''
     try:
      from captions_yt import from_info
-     yt_words=from_info(info);save(job,{'transcript_source':'YouTube captions' if yt_words else 'speech model'})
+     yt_words=from_info(info,language);save(job,{'transcript_source':'YouTube captions' if yt_words else 'speech model'})
     except Exception:yt_words=None
     checkpoint['source_info']={'fast':fast,'language':video_lang,'title':title,'words':yt_words,'uploader':info.get('channel') or info.get('uploader') or ''}
     persist()
